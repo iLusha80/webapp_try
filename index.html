@@ -3,56 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug v3</title>
-    <!-- Скрипт Telegram загружается первым -->
+    <title>WebApp Success</title>
+    <!-- 1. Подключаем скрипт Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            color: var(--tg-theme-text-color);
+            background: var(--tg-theme-bg-color);
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 10px;
+            background: var(--tg-theme-secondary-bg-color);
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Идет финальная проверка...</h1>
-    <div id="content"></div>
+
+    <h1>Ваши данные от Telegram:</h1>
+    <div id="user-data">Загрузка...</div>
 
     <script>
-        function initializeApp() {
-            try {
-                const tg = window.Telegram.WebApp;
-                
-                // 1. Сообщаем Telegram, что приложение готово
-                tg.ready();
-                
-                // 2. Получаем данные
-                const initData = tg.initDataUnsafe;
-                const user = initData?.user;
+        // Получаем объект WebApp
+        const tg = window.Telegram.WebApp;
 
-                const contentDiv = document.getElementById('content');
+        // --- НАДЕЖНЫЙ СПОСОБ: ВЫВОД ДАННЫХ ПРИ ЗАГРУЗКЕ ---
+        // Проверяем, что строка с данными initData не пустая.
+        // Telegram гарантирует ее наличие при открытии из клиента.
+        if (tg.initDataUnsafe && tg.initData) {
+            
+            // Показываем блок с данными
+            const userDataDiv = document.getElementById('user-data');
+            const user = tg.initDataUnsafe.user;
 
-                // 3. Проверяем наличие пользователя в данных
-                if (user && user.id) {
-                    // alert('Успех! Данные пользователя получены.'); // Можно раскомментировать для проверки
-                    const username = user.username 
-                        ? `@${user.username}` 
-                        : `${user.first_name} ${user.last_name || ''}`.trim();
+            if (user) {
+                const username = user.username 
+                    ? `@${user.username}` 
+                    : `${user.first_name} ${user.last_name || ''}`.trim();
 
-                    contentDiv.innerHTML = `
-                        <h2>Информация о пользователе:</h2>
-                        <p><b>ID:</b> ${user.id}</p>
-                        <p><b>Ник:</b> ${username}</p>
-                        <hr>
-                        <h3>Все данные (initDataUnsafe):</h3>
-                        <pre>${JSON.stringify(initData, null, 2)}</pre>
-                    `;
-                } else {
-                    // Эта ошибка теперь будет более информативной
-                    alert('Ошибка: объект user не найден в initDataUnsafe. Данные от Telegram неполные или отсутствуют.');
-                    contentDiv.innerText = 'Не удалось получить данные пользователя. initDataUnsafe: ' + JSON.stringify(initData, null, 2);
-                }
-
-            } catch (e) {
-                alert('Критическая ошибка JS: ' + e.message);
+                userDataDiv.innerHTML = `
+                    <p><b>ID:</b> ${user.id}</p>
+                    <p><b>Имя:</b> ${user.first_name}</p>
+                    <p><b>Ник:</b> ${username}</p>
+                    <hr>
+                    <h3>Полные данные (initDataUnsafe):</h3>
+                    <pre>${JSON.stringify(tg.initDataUnsafe, null, 2)}</pre>
+                `;
+            } else {
+                 userDataDiv.innerText = 'Объект user отсутствует в initDataUnsafe.';
             }
+
+            // --- ГАРАНТИРОВАННЫЙ СПОСОБ: ИСПОЛЬЗОВАНИЕ КНОПКИ ---
+            // Настраиваем главную кнопку
+            tg.MainButton.setText('Закрыть и отправить данные');
+            tg.MainButton.show();
+
+            // Вешаем обработчик на клик по главной кнопке
+            tg.onEvent('mainButtonClicked', function() {
+                // При клике отправляем данные боту и закрываем приложение
+                const dataToSend = JSON.stringify(tg.initDataUnsafe);
+                tg.sendData(dataToSend);
+            });
+
+        } else {
+            // Этот блок выполнится, только если открыть страницу в обычном браузере
+            document.body.innerHTML = '<h1>Ошибка</h1><p>Это приложение должно быть запущено из клиента Telegram.</p>';
         }
 
-        // Используем setTimeout, чтобы гарантировать, что скрипт Telegram успел выполниться
-        setTimeout(initializeApp, 50); // 50 миллисекунд - надежная задержка
+        // Сообщаем Telegram, что приложение готово к отображению
+        tg.ready();
+
     </script>
 </body>
 </html>
