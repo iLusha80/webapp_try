@@ -3,24 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Подключаем наши стили -->
-    <link rel="stylesheet" href="css/style.css">
-    
-    <title>User Info App</title>
-
-    <!-- Скрипт от Telegram лучше подключать в <head> -->
+    <title>Debug Test</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
+    <h1>Идет проверка...</h1>
 
-    <div class="container">
-        <h1>Информация о пользователе</h1>
-        <p id="user-info">Загрузка данных...</p>
-    </div>
+    <script>
+        try {
+            // Инициализируем приложение
+            window.Telegram.WebApp.ready();
 
-    <!-- Подключаем наш собственный скрипт в конце body -->
-    <script src="js/script.js"></script>
+            // Получаем сырые данные
+            const initData = window.Telegram.WebApp.initDataUnsafe;
 
+            // Проверяем, есть ли вообще объект initData
+            if (initData && Object.keys(initData).length > 0) {
+                // Если есть, выводим его в виде всплывающего окна
+                alert('Данные получены: ' + JSON.stringify(initData, null, 2));
+            } else {
+                // Если объект пустой или не существует
+                alert('Ошибка: объект initDataUnsafe пуст. Данные от Telegram не пришли.');
+            }
+        } catch (e) {
+            // Если произошла любая другая ошибка
+            alert('Критическая ошибка JS: ' + e);
+        }
+    </script>
 </body>
 </html>

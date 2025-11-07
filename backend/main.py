@@ -42,6 +42,7 @@ async def command_start_process(message: Message):
         return
 
     logger.info(f"Пользователь {message.from_user.id} запустил бота.")
+    logger.info(f"Отправляю пользователю {message.from_user.id} ссылку: {WEB_APP_URL}")
 
     # Создаем кнопку, которая будет открывать наше веб-приложение
     button = KeyboardButton(
