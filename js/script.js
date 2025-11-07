@@ -1,18 +1,12 @@
-// Ждем, когда DOM будет полностью загружен, и только потом выполняем наш код
-document.addEventListener('DOMContentLoaded', function() {
-    // Получаем объект Web App
-    const tg = window.Telegram.WebApp;
+// Получаем объект Web App
+const tg = window.Telegram.WebApp;
 
-    // Сообщаем Telegram, что приложение готово к отображению
-    tg.ready();
-
+// Функция для отображения информации о пользователе
+function displayUserInfo() {
     const userInfoElement = document.getElementById('user-info');
-    
-    // Пытаемся получить данные пользователя
     const user = tg.initDataUnsafe?.user;
 
-    // Для отладки: выводим в консоль полученные данные
-    // Вы сможете увидеть это, если подключите отладку для Webview
+    // Для отладки
     console.log('initDataUnsafe:', tg.initDataUnsafe);
 
     if (user) {
@@ -28,11 +22,26 @@ document.addEventListener('DOMContentLoaded', function() {
             Твой ник: <span>${username}</span>
         `;
 
-        // Выводим информацию в наш элемент
+        // Выводим информацию
         userInfoElement.innerHTML = userInfoText;
 
     } else {
-        // Если по какой-то причине данные не пришли
+        // Если данные не пришли
         userInfoElement.innerHTML = "Не удалось получить данные о пользователе. <br> Возможно, вы открыли страницу не через Telegram.";
     }
+}
+
+// Сообщаем Telegram, что приложение готово
+tg.ready();
+
+// Показываем основную кнопку
+tg.MainButton.setText('Показать инфо').show();
+
+// Пробуем отобразить информацию сразу
+displayUserInfo();
+
+// Добавляем обработчик на клик по основной кнопке
+tg.onEvent('mainButtonClicked', function() {
+    // При клике еще раз пробуем отобразить информацию
+    displayUserInfo();
 });
