@@ -1,8 +1,9 @@
 import asyncio
 import os
 import sys
+import json
 
-from aiogram import Bot, Dispatcher, html
+from aiogram import Bot, Dispatcher, html, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
@@ -56,6 +57,25 @@ async def command_start_process(message: Message):
     await message.answer(
         f"Привет, {html.bold(message.from_user.full_name)}!\nНажми на кнопку ниже, чтобы узнать свой ID и ник.",
         reply_markup=keyboard
+    )
+
+
+@dp.message(F.web_app_data)
+async def web_app_data_handler(message: Message):
+    """
+    Обработчик для приема данных от Web App.
+    """
+    logger.info(f"Получены данные от Web App от пользователя {message.from_user.id}")
+    
+    # Данные приходят в формате JSON-строки
+    data = json.loads(message.web_app_data.data)
+    
+    await message.answer(
+        f"Спасибо за данные! Я получил следующую информацию:\n"
+        f"<b>User ID:</b> {data['user']['id']}\n"
+        f"<b>Username:</b> @{data['user']['username']}\n\n"
+        f"Полный ответ от WebApp:\n"
+        f"<pre>{html.quote(json.dumps(data, indent=2, ensure_ascii=False))}</pre>"
     )
 
 
