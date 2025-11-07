@@ -1,0 +1,7 @@
+aiogram
+
+# sys 
+loguru
+
+# .env
+python-dotenv
