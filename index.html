@@ -3,32 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug Test</title>
+    <title>Debug v3</title>
+    <!-- Скрипт Telegram загружается первым -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>Идет проверка...</h1>
+    <h1>Идет финальная проверка...</h1>
+    <div id="content"></div>
 
     <script>
-        try {
-            // Инициализируем приложение
-            window.Telegram.WebApp.ready();
+        function initializeApp() {
+            try {
+                const tg = window.Telegram.WebApp;
+                
+                // 1. Сообщаем Telegram, что приложение готово
+                tg.ready();
+                
+                // 2. Получаем данные
+                const initData = tg.initDataUnsafe;
+                const user = initData?.user;
 
-            // Получаем сырые данные
-            const initData = window.Telegram.WebApp.initDataUnsafe;
+                const contentDiv = document.getElementById('content');
 
-            // Проверяем, есть ли вообще объект initData
-            if (initData && Object.keys(initData).length > 0) {
-                // Если есть, выводим его в виде всплывающего окна
-                alert('Данные получены: ' + JSON.stringify(initData, null, 2));
-            } else {
-                // Если объект пустой или не существует
-                alert('Ошибка: объект initDataUnsafe пуст. Данные от Telegram не пришли.');
+                // 3. Проверяем наличие пользователя в данных
+                if (user && user.id) {
+                    // alert('Успех! Данные пользователя получены.'); // Можно раскомментировать для проверки
+                    const username = user.username 
+                        ? `@${user.username}` 
+                        : `${user.first_name} ${user.last_name || ''}`.trim();
+
+                    contentDiv.innerHTML = `
+                        <h2>Информация о пользователе:</h2>
+                        <p><b>ID:</b> ${user.id}</p>
+                        <p><b>Ник:</b> ${username}</p>
+                        <hr>
+                        <h3>Все данные (initDataUnsafe):</h3>
+                        <pre>${JSON.stringify(initData, null, 2)}</pre>
+                    `;
+                } else {
+                    // Эта ошибка теперь будет более информативной
+                    alert('Ошибка: объект user не найден в initDataUnsafe. Данные от Telegram неполные или отсутствуют.');
+                    contentDiv.innerText = 'Не удалось получить данные пользователя. initDataUnsafe: ' + JSON.stringify(initData, null, 2);
+                }
+
+            } catch (e) {
+                alert('Критическая ошибка JS: ' + e.message);
             }
-        } catch (e) {
-            // Если произошла любая другая ошибка
-            alert('Критическая ошибка JS: ' + e);
         }
+
+        // Используем setTimeout, чтобы гарантировать, что скрипт Telegram успел выполниться
+        setTimeout(initializeApp, 50); // 50 миллисекунд - надежная задержка
     </script>
 </body>
 </html>
