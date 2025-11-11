@@ -3,24 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Подключаем наши стили -->
+    <title>Камень, Ножницы, Бумага</title>
     <link rel="stylesheet" href="css/style.css">
-    
-    <title>User Info App</title>
-
-    <!-- Скрипт от Telegram лучше подключать в <head> -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
     <div class="container">
-        <h1>Информация о пользователе Telegram</h1>
-        <p id="user-info">Загрузка данных...</p>
+        <h1>Камень, Ножницы, Бумага</h1>
+        
+        <div class="score-board">
+            <div class="score-item">
+                <span id="player-name">Вы</span>
+                <span id="player-score" class="score">0</span>
+            </div>
+            <div class="score-item">
+                <span id="bot-name">Бот</span>
+                <span id="bot-score" class="score">0</span>
+            </div>
+        </div>
+
+        <div class="status" id="status">Сделайте ваш ход!</div>
+
+        <div class="choices" id="choices">
+            <button class="choice-btn" data-choice="rock">✊</button>
+            <button class="choice-btn" data-choice="paper">✋</button>
+            <button class="choice-btn" data-choice="scissors">✌️</button>
+        </div>
+
+        <div class="results" id="results">
+            <div class="result-item">
+                <p>Ваш ход:</p>
+                <span class="result-choice" id="player-choice-result"></span>
+            </div>
+            <div class="result-item">
+                <p>Ход бота:</p>
+                <span class="result-choice" id="bot-choice-result"></span>
+            </div>
+        </div>
+        
+        <button class="play-again-btn hidden" id="play-again">Играть снова</button>
     </div>
 
-    <!-- Подключаем наш собственный скрипт в конце body -->
     <script src="js/script.js"></script>
-
 </body>
 </html>
