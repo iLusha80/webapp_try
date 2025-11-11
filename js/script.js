@@ -1,83 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tg = window.Telegram.WebApp;
+
+    // Элементы для вывода
+    const userInfoElement = document.getElementById('user-info');
+    const jsonOutputElement = document.getElementById('json-output');
+
+    // Сообщаем Telegram, что приложение готово
     tg.ready();
 
-    // Получаем все элементы
-    const choicesButtons = document.querySelectorAll('.choice-btn');
-    const statusDiv = document.getElementById('status');
-    const playerScoreSpan = document.getElementById('player-score');
-    const botScoreSpan = document.getElementById('bot-score');
-    const resultsDiv = document.getElementById('results');
-    const playerChoiceResult = document.getElementById('player-choice-result');
-    const botChoiceResult = document.getElementById('bot-choice-result');
-    const choicesDiv = document.getElementById('choices');
-    const playAgainBtn = document.getElementById('play-again');
+    // Проверяем наличие данных
+    if (tg.initDataUnsafe && tg.initData) {
+        const user = tg.initDataUnsafe.user;
 
-    let playerScore = 0;
-    let botScore = 0;
-    const choices = ['rock', 'paper', 'scissors'];
-    const emojiMap = {
-        rock: '✊',
-        paper: '✋',
-        scissors: '✌️'
-    };
+        // --- 1. Заполняем верхний блок с информацией о пользователе ---
+        if (user) {
+            const username = user.username 
+                ? `@${user.username}` 
+                : `${user.first_name} ${user.last_name || ''}`.trim();
 
-    // Функция для хода игры
-    function playGame(playerChoice) {
-        // Скрываем кнопки выбора
-        choicesDiv.classList.add('hidden');
-
-        // Генерируем ход бота
-        const botChoice = choices[Math.floor(Math.random() * choices.length)];
-        
-        // Определяем победителя
-        let resultText = '';
-        if (playerChoice === botChoice) {
-            resultText = 'Ничья!';
-        } else if (
-            (playerChoice === 'rock' && botChoice === 'scissors') ||
-            (playerChoice === 'scissors' && botChoice === 'paper') ||
-            (playerChoice === 'paper' && botChoice === 'rock')
-        ) {
-            resultText = 'Вы победили!';
-            playerScore++;
+            userInfoElement.innerHTML = `
+                ID: <span>${user.id}</span>
+                <br>
+                Ник: <span>${username}</span>
+            `;
         } else {
-            resultText = 'Вы проиграли...';
-            botScore++;
+            userInfoElement.innerText = 'Информация о пользователе отсутствует.';
         }
 
-        // Обновляем счет
-        playerScoreSpan.textContent = playerScore;
-        botScoreSpan.textContent = botScore;
+        // --- 2. Форматируем и выводим весь JSON-объект ---
+        // JSON.stringify(value, replacer, space)
+        // value - наш объект
+        // replacer - null (не изменяем ничего)
+        // space - 2 (количество пробелов для отступа, делает JSON читаемым)
+        const formattedJson = JSON.stringify(tg.initDataUnsafe, null, 2);
+        
+        jsonOutputElement.textContent = formattedJson;
 
-        // Показываем результаты
-        playerChoiceResult.textContent = emojiMap[playerChoice];
-        botChoiceResult.textContent = emojiMap[botChoice];
-        resultsDiv.style.visibility = 'visible';
-        resultsDiv.style.opacity = '1';
-
-        // Обновляем статус и показываем кнопку "Играть снова"
-        statusDiv.textContent = resultText;
-        playAgainBtn.classList.remove('hidden');
+    } else {
+        // Если открыто не в Telegram
+        document.querySelector('.container').innerHTML = '<h1>Ошибка</h1><p>Пожалуйста, запустите это приложение из клиента Telegram.</p>';
     }
-
-    // Функция для сброса игры
-    function resetGame() {
-        statusDiv.textContent = 'Сделайте ваш ход!';
-        choicesDiv.classList.remove('hidden');
-        resultsDiv.style.visibility = 'hidden';
-        resultsDiv.style.opacity = '0';
-        playAgainBtn.classList.add('hidden');
-    }
-
-    // Навешиваем обработчики на кнопки выбора
-    choicesButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const choice = button.dataset.choice;
-            playGame(choice);
-        });
-    });
-
-    // Обработчик на кнопку "Играть снова"
-    playAgainBtn.addEventListener('click', resetGame);
 });
